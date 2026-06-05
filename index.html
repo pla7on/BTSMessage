@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BTS · Un mensaje para ti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: 'Inter', ui-sans-serif, sans-serif;
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+/* ── BACKGROUND: video de Aurora en la izquierda como fondo completo ── */
+.bg-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.bg-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+}
+
+/* fade oscuro desde abajo para que el texto sea legible */
+.bg-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,
+    rgba(0,0,0,0.25) 30%,
+    rgba(0,0,0,0.65) 55%,
+    rgba(0,0,0,0.92) 75%,
+    #000 100%
+  );
+}
+
+/* ── BRAND ── */
+.brand {
+  position: absolute;
+  top: 28px;
+  left: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeDown .7s ease .2s forwards;
+}
+.brand-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}
+.brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ── CONTENT ── */
+.content {
+  position: relative;
+  z-index: 10;
+  padding: 0 24px 52px;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-title {
+  font-size: clamp(38px, 11vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 28px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp .8s cubic-bezier(0.22,1,0.36,1) .35s forwards;
+}
+
+/* ── QUOTE CARD ── */
+.quote-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 24px 22px 22px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeUp .9s cubic-bezier(0.22,1,0.36,1) .55s forwards;
+}
+.quote-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+}
+
+.quote-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(19px, 5.5vw, 24px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #fff;
+  margin-bottom: 20px;
+  min-height: 80px;
+}
+.quote-text .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .4s ease, transform .4s ease;
+  margin-right: 0.22em;
+}
+.quote-text .word.on { opacity: 1; transform: translateY(0); }
+
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 16px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .9s cubic-bezier(0.22,1,0.36,1);
+}
+.divider.grow { transform: scaleX(1); }
+
+.meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.meta.on { opacity: 1; transform: translateY(0); }
+
+.member-badge {
+  display: inline-block;
+  background: #fff;
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+.source-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+  line-height: 1.5;
+}
+.meta-ko {
+  font-size: 26px;
+  color: rgba(255,255,255,0.08);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+/* ── LOADER ── */
+#loader {
+  position: fixed; inset: 0; z-index: 200;
+  background: #000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 18px;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+#loader.out { opacity: 0; visibility: hidden; }
+.loader-ko {
+  font-size: 72px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: rgba(255,255,255,0.9);
+  animation: pulse 1.3s ease-in-out infinite;
+}
+.loader-bar {
+  width: 160px; height: 1px;
+  background: rgba(255,255,255,0.1);
+  position: relative; overflow: hidden;
+}
+.loader-bar::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 50%;
+  background: rgba(255,255,255,0.6);
+  animation: slide 1s ease-in-out infinite;
+}
+.loader-hint {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+
+@keyframes fadeUp  { to { opacity:1; transform:translateY(0); } }
+@keyframes fadeDown { to { opacity:1; } }
+@keyframes pulse   { 0%,100%{opacity:.5} 50%{opacity:1} }
+@keyframes slide   { 0%{left:-50%} 100%{left:150%} }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ko">방탄</div>
+  <div class="loader-bar"></div>
+  <div class="loader-hint">preparando tu mensaje</div>
+</div>
+
+<div class="screen">
+
+  <div class="bg-video">
+    <video autoplay muted loop playsinline>
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="bg-fade"></div>
+
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">방탄소년단</span>
+  </div>
+
+  <div class="content">
+    <h1 class="hero-title">Un mensaje<br>solo para ti</h1>
+
+    <div class="quote-card">
+      <div class="quote-text" id="q-text" role="blockquote"></div>
+      <div class="divider" id="div-line"></div>
+      <div class="meta" id="meta">
+        <div>
+          <div class="member-badge" id="m-badge"></div>
+          <div style="height:6px"></div>
+          <div class="source-text" id="m-src"></div>
+        </div>
+        <div class="meta-ko" id="m-ko"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var Q = [
+  {t:"Quizás cometí un error ayer, pero el yo de ayer sigo siendo yo. Soy quien soy hoy, con todos mis defectos.", m:"RM", s:"Sea — canción, 2017", ko:"남준"},
+  {t:"La vida es dura y no siempre sale bien, pero debemos ser valientes y seguir adelante.", m:"Suga", s:"Seesaw — canción, 2018", ko:"윤기"},
+  {t:"No te quedes atrapado en el sueño de otro. Vive el tuyo.", m:"V", s:"Entrevista MTV, 2018", ko:"태형"},
+  {t:"Me diste lo mejor de mí, así que tú también te mereces lo mejor de ti.", m:"BTS", s:"Best of Me — canción, 2017", ko:"방탄"},
+  {t:"El amanecer justo antes de que salga el sol es el momento más oscuro.", m:"RM", s:"Tomorrow — canción, 2014", ko:"남준"},
+  {t:"Aunque no seas perfecto, eres una edición limitada.", m:"RM", s:"Entrevista, 2015", ko:"남준"},
+  {t:"Incluso cuando esta lluvia se detenga y las nubes se vayan, yo aquí sigo, igual que siempre.", m:"J-Hope", s:"Rain — canción, 2014", ko:"호석"},
+  {t:"Puede que no seas perfecto, pero estás lleno de belleza.", m:"Jungkook", s:"Begin — canción, 2016", ko:"정국"},
+  {t:"Quítate la máscara. Solo tienes que ser tú.", m:"V", s:"Zero O'Clock — canción, 2020", ko:"태형"},
+  {t:"La vida es una escultura que vas formando con cada error y cada aprendizaje.", m:"RM", s:"Entrevista Billboard, 2017", ko:"남준"},
+  {t:"Encuentra tu nombre, encuentra tu voz hablando por ti mismo.", m:"RM", s:"Discurso en la ONU, 2018", ko:"남준"},
+  {t:"Cuéntame tu historia. Quiero escuchar tu voz y tu convicción. Sin importar quién seas o de dónde vengas — habla por ti mismo.", m:"RM", s:"Discurso en la ONU, 2018", ko:"남준"},
+  {t:"La felicidad no es algo que tengas que lograr. Puedes sentirte feliz durante el proceso de lograr algo.", m:"RM", s:"Entrevista TIME, 2018", ko:"남준"},
+  {t:"Tu presencia puede dar felicidad. Espero que lo recuerdes.", m:"Jin", s:"Fansign, 2017", ko:"석진"},
+  {t:"Cuando tu corazón se conmueve, se convierte en algo mejor y más positivo.", m:"Jimin", s:"Entrevista Vogue, 2019", ko:"지민"},
+  {t:"Sabe que el dolor pasará. Y cuando lo haga, serás más fuerte.", m:"Jimin", s:"Weverse, 2021", ko:"지민"},
+  {t:"Aunque me duela un poco, está bien.", m:"Jimin", s:"Serendipity — canción, 2018", ko:"지민"},
+  {t:"Estos errores y defectos son lo que soy: las estrellas más brillantes en la constelación de mi vida.", m:"RM", s:"Discurso en la ONU, 2018", ko:"남준"},
+  {t:"Cuando las cosas se pongan difíciles, para un momento y mira cuánto has recorrido. No olvides lo gratificante que es.", m:"V", s:"Fansign, 2019", ko:"태형"},
+  {t:"La popularidad es una burbuja. Es una montaña: subes con mucho esfuerzo pero bajas muy rápido.", m:"RM", s:"Entrevista, 2020", ko:"남준"},
+  {t:"Vivir sin pasión es como estar muerto.", m:"Jungkook", s:"Weverse, 2021", ko:"정국"},
+  {t:"Las emociones son distintas en cada situación y momento. Agonizar en cada instante — eso es la vida.", m:"Suga", s:"Entrevista NME, 2019", ko:"윤기"},
+  {t:"Creo que BTS brilla gracias a sus fans.", m:"Suga", s:"Weverse Magazine, 2021", ko:"윤기"},
+  {t:"Una sonrisa cálida es el lenguaje universal de la bondad.", m:"J-Hope", s:"Weverse post, 2020", ko:"호석"},
+  {t:"La música me ayudó a entender a nuestra generación joven y a sentir empatía por ella.", m:"J-Hope", s:"Entrevista Esquire Korea, 2019", ko:"호석"},
+  {t:"Todos nuestros sueños pueden hacerse realidad si tenemos el coraje de perseguirlos.", m:"Jungkook", s:"Fansign, 2018", ko:"정국"},
+  {t:"La vida no se trata de ser perfecto; se trata de cumplir tus sueños.", m:"Jungkook", s:"Entrevista, 2019", ko:"정국"},
+  {t:"Puedes estar triste y aun así sentirte feliz cuando estás con los demás.", m:"RM", s:"Entrevista, 2019", ko:"남준"},
+  {t:"Si no puedes volar, corre. Si no puedes correr, camina. Si no puedes caminar, arrastra. Pero sigue avanzando.", m:"BTS", s:"Not Today — canción, 2017", ko:"방탄"},
+  {t:"Todos los marginados del mundo — puede llegar el día en que perdamos, pero no es hoy. Hoy luchamos.", m:"RM", s:"Not Today — canción, 2017", ko:"남준"},
+  {t:"Hice crecer una flor que no puede florecer en un sueño que no puede hacerse realidad.", m:"V y Jungkook", s:"Fake Love — canción, 2018", ko:"태형·정국"},
+  {t:"Hay cientos de yo dentro de mí. Hoy me encuentro con un yo nuevo. De todas formas, todo soy yo.", m:"Jungkook", s:"IDOL — canción, 2018", ko:"정국"},
+  {t:"¿Me creerías si te dijera que yo también tengo miedo de todo?", m:"V y Jimin", s:"Magic Shop — canción, 2018", ko:"태형·지민"},
+  {t:"Para siempre somos jóvenes, bajo la lluvia de pétalos de flores.", m:"BTS", s:"Young Forever — canción, 2016", ko:"방탄"},
+  {t:"Me amo a mí mismo. Sé que suena a cliché, pero si yo no lo hago, ¿quién lo hará?", m:"RM", s:"Entrevista, 2019", ko:"남준"},
+  {t:"Día de primavera, te extraño. Quiero ir a donde estás.", m:"BTS", s:"Spring Day — canción, 2017", ko:"방탄"},
+  {t:"Eres la causa de mi euforia.", m:"BTS", s:"Euphoria — canción, 2018", ko:"방탄"},
+  {t:"Tú brillas, yo brillo.", m:"BTS", s:"Boy With Luv — canción, 2019", ko:"방탄"},
+  {t:"Somos a prueba de balas.", m:"BTS", s:"We Are Bulletproof — canción, 2020", ko:"방탄"},
+  {t:"Aprendimos a luchar cayéndonos primero.", m:"RM", s:"Entrevista Vogue Korea, 2021", ko:"남준"},
+  {t:"Empecé esto para cambiarme a mí mismo y desde entonces no he parado de cambiar.", m:"Suga", s:"Agust D — canción, 2016", ko:"윤기"},
+  {t:"Tuve que atravesar la oscuridad para encontrar la luz. Valió cada paso.", m:"Suga", s:"D-2, notas del álbum 2020", ko:"윤기"},
+  {t:"Gracias por aceptarnos. Los 7 chicos de Corea que cantan en coreano.", m:"RM", s:"Grammy Week, 2022", ko:"남준"},
+  {t:"Dicen que seguir tu pasión es una inmadurez. Yo digo que hacer lo que odias por dinero es la verdadera inmadurez.", m:"Suga", s:"Weverse post, 2021", ko:"윤기"},
+  {t:"Habrá un mañana para nosotros, y será brillante.", m:"J-Hope", s:"Outro: Ego — canción, 2020", ko:"호석"},
+  {t:"Elegí ser quien soy. No la versión que otros esperaban.", m:"RM", s:"Mono — notas del álbum, 2018", ko:"남준"},
+  {t:"Antes de amarme a mí mismo, tuve que saber qué era. Esa fue la parte más difícil.", m:"RM", s:"Entrevista Rolling Stone, 2020", ko:"남준"},
+  {t:"El mundo es un poco más brillante donde quiera que estés.", m:"Jungkook", s:"Still With You — canción, 2020", ko:"정국"},
+  {t:"Una mariposa no puede ver sus propias alas. Pero el mundo sí.", m:"V", s:"Entrevista, 2019", ko:"태형"},
+  {t:"Cada paso que damos está dedicado a ti.", m:"BTS", s:"Discurso BBMA, 2021", ko:"방탄"},
+  {t:"Las estrellas siempre están brillando. A veces las nubes simplemente se interponen.", m:"RM", s:"Entrevista, 2019", ko:"남준"},
+  {t:"Ya no le tengo miedo a la oscuridad. Es donde están todas las estrellas.", m:"V", s:"Weverse post, 2021", ko:"태형"},
+  {t:"El arte, la música, la danza — esas son las cosas que nos hacen verdaderamente humanos.", m:"RM", s:"Exposición Arario, 2021", ko:"남준"},
+  {t:"Si te amas a ti mismo, amas mejor a los demás.", m:"RM", s:"Entrevista TIME, 2018", ko:"남준"},
+  {t:"Existimos para conectar con las personas, no para ser perfectos ante ellas.", m:"Suga", s:"Weverse, 2022", ko:"윤기"},
+  {t:"La música me salvó cuando nada más podía hacerlo.", m:"Suga", s:"SUGA: Road to D-DAY, 2023", ko:"윤기"},
+  {t:"El ARMY es la razón por la que seguimos. Sin ustedes, BTS no tiene sentido.", m:"Jimin", s:"Weverse, 2023", ko:"지민"},
+  {t:"No te preocupes. Incluso las flores necesitan lluvia para florecer.", m:"Jin", s:"Weverse post, 2022", ko:"석진"},
+  {t:"Quiero darte esperanza cuando crees que ya no queda nada.", m:"J-Hope", s:"Hope World — canción, 2018", ko:"호석"},
+  {t:"Hay cosas que solo se pueden expresar con música. Las palabras solas no son suficientes.", m:"V", s:"In the SOOP, 2021", ko:"태형"},
+  {t:"Cada herida se convierte en un tatuaje que cuenta tu historia.", m:"Suga", s:"Daechwita — notas, 2020", ko:"윤기"},
+  {t:"Eres mi galaxia.", m:"Jungkook", s:"My Time — canción, 2020", ko:"정국"},
+  {t:"Tu amor es el universo y yo soy solo una pequeña estrella en él.", m:"V", s:"Singularity — canción, 2018", ko:"태형"},
+  {t:"No sé todo, pero sé una cosa: tú importas.", m:"Jin", s:"Weverse post, 2022", ko:"석진"},
+  {t:"Crecer da miedo. Pero es mejor que quedarse quieto.", m:"RM", s:"Entrevista NME, 2021", ko:"남준"},
+  {t:"He llorado más veces de las que puedo contar en este camino. Cada lágrima valió la pena.", m:"Jimin", s:"BE — notas del álbum, 2020", ko:"지민"},
+  {t:"No somos perfectos. Pero somos perfectamente nosotros.", m:"BTS", s:"Discurso AMAs, 2021", ko:"방탄"},
+  {t:"La brecha entre quien eres y quien quieres ser es donde ocurre todo el trabajo.", m:"Suga", s:"Weverse, 2023", ko:"윤기"},
+  {t:"Quiero ser recordado como alguien que lo intentó.", m:"RM", s:"Entrevista GQ Korea, 2022", ko:"남준"},
+  {t:"El mundo sigue girando aunque todo parezca roto. Tú también.", m:"J-Hope", s:"Hope on the Street, 2024", ko:"호석"},
+  {t:"La vulnerabilidad no es debilidad. Compartirla requiere más valentía que cualquier otra cosa.", m:"RM", s:"Entrevista Vogue, 2022", ko:"남준"},
+  {t:"Tus cicatrices prueban que sanaste. Llévalas con orgullo.", m:"Suga", s:"People Pt.2 — notas, 2022", ko:"윤기"},
+  {t:"Ser amado es hermoso, pero amar algo de verdad — eso es libertad.", m:"V", s:"Entrevista para Layover, 2023", ko:"태형"},
+  {t:"Antes huía de mis sentimientos. Ahora escribo canciones sobre ellos.", m:"Jungkook", s:"Entrevista para Golden, 2023", ko:"정국"},
+  {t:"La mejor versión de ti mismo todavía está por llegar.", m:"J-Hope", s:"Jack in the Box — carta, 2022", ko:"호석"},
+  {t:"Aunque el mundo te dé la espalda, yo me giraré hacia ti.", m:"Jimin", s:"Filter — canción, 2020", ko:"지민"},
+  {t:"Todos estamos perdidos en la traducción entre quiénes somos y cómo nos ven los demás.", m:"RM", s:"Indigo — notas del álbum, 2022", ko:"남준"},
+  {t:"No hay camino hacia adelante sin gratitud por el camino recorrido.", m:"Jin", s:"Carta al ejército, 2022", ko:"석진"},
+  {t:"Quiero ser la música que te encuentre cuando más la necesitas.", m:"J-Hope", s:"Hope World — carta, 2018", ko:"호석"},
+  {t:"Estuve perdido mucho tiempo. La música me dio un mapa.", m:"Suga", s:"D-2 — notas, 2020", ko:"윤기"},
+  {t:"Cuando actúo quiero darte algo que puedas guardar para siempre.", m:"Jungkook", s:"Entrevista para Golden, 2023", ko:"정국"},
+  {t:"Somos siete. Somos uno. Eso nunca cambiará.", m:"BTS", s:"Permission to Dance on Stage, 2022", ko:"방탄"},
+  {t:"Lo más importante es simplemente que estamos aquí, juntos otra vez.", m:"RM", s:"GQ — entrevista grupal, 2026", ko:"남준"},
+  {t:"Seguiremos avanzando. No importa el ritmo — lo importante es no detenerse.", m:"Jimin", s:"Korea Times — ARIRANG, 2026", ko:"지민"},
+  {t:"Volver a nuestras raíces se sentía esencial. Infundimos nuestra cultura en cada letra.", m:"J-Hope", s:"Korea Times — ARIRANG, 2026", ko:"호석"},
+  {t:"Me gusto más a mí mismo cuando estoy con los miembros.", m:"RM", s:"Korea Times, 2026", ko:"남준"},
+  {t:"Nuestra pasión por el escenario no ha cambiado. Eso nunca cambia.", m:"V", s:"Korea Times, 2026", ko:"태형"},
+  {t:"Hemos crecido, pero nuestra energía sigue siendo la misma.", m:"Suga", s:"Entrevista previa a ARIRANG, 2025", ko:"윤기"},
+  {t:"Aprendí a amarme a mí mismo viéndolos amarme a mí.", m:"Jimin", s:"Weverse post, 2023", ko:"지민"},
+  {t:"El arte me enseñó que ser diferente no es un defecto. Es exactamente el punto.", m:"RM", s:"Entrevista GQ, 2022", ko:"남준"},
+  {t:"No necesitas apresurarte. Tu momento llegará.", m:"J-Hope", s:"Hope on the Street, 2024", ko:"호석"},
+  {t:"Cada noche pienso en ti. Eso nunca cambiará.", m:"V", s:"Blue & Grey — canción, 2020", ko:"태형"},
+  {t:"El universo se inclina hacia la bondad. Sé parte de esa inclinación.", m:"Jin", s:"Weverse, 2021", ko:"석진"},
+  {t:"Hay algo mágico en 7 personas que se niegan a rendirse la una con la otra.", m:"Jin", s:"Run BTS, 2022", ko:"석진"},
+  {t:"La tristeza que sientes ahora es la prueba de que todavía estás luchando.", m:"RM", s:"Indigo — notas, 2022", ko:"남준"},
+  {t:"Prefiero fracasar intentándolo que tener éxito en algo que no amo.", m:"Suga", s:"SUGA: Road to D-DAY, 2023", ko:"윤기"},
+  {t:"Sé que no soy el más talentoso en el escenario. Pero prometo que seré el que más lo intente.", m:"Jungkook", s:"Documental BTS, 2021", ko:"정국"},
+  {t:"Todos los días pensamos en ti. Cada actuación fue para ti.", m:"BTS", s:"Discurso MTV VMAs, 2021", ko:"방탄"},
+  {t:"No hay mapa para donde vamos. Y por eso exactamente seguimos caminando.", m:"RM", s:"Entrevista Complex, 2020", ko:"남준"},
+  {t:"No sé qué sería de mí sin la música. Probablemente estaría perdido.", m:"Suga", s:"Agust D Tour documental, 2023", ko:"윤기"},
+  {t:"Si algo te da miedo, es una señal de que importa.", m:"J-Hope", s:"Weverse, 2022", ko:"호석"},
+  {t:"Está bien no estar bien. No tienes que fingir con nosotros.", m:"Jin", s:"Weverse post, 2020", ko:"석진"},
+  {t:"Eres suficiente, exactamente como eres ahora mismo.", m:"Jimin", s:"Fansign, 2019", ko:"지민"},
+  {t:"La presión de ser perfecto casi me rompe. Luego me di cuenta de que la imperfección es el punto.", m:"RM", s:"Entrevista, 2021", ko:"남준"},
+  {t:"Me veo a mí mismo en cada fan que alguna vez se sintió fuera de lugar. Tú perteneces aquí.", m:"Jungkook", s:"Fansign, 2022", ko:"정국"},
+  {t:"BTS no es solo un grupo. Es un sentimiento. Es la prueba de que el amor funciona.", m:"V", s:"Weverse, 2023", ko:"태형"},
+  {t:"No conquistamos el mundo. Solo lo amamos tan fuerte que nos escuchó.", m:"RM", s:"Entrevista Variety, 2022", ko:"남준"},
+  {t:"Pensamos profundamente en nuestra identidad y en lo que significa que todos seamos coreanos.", m:"Jimin", s:"Korea Times — ARIRANG, 2026", ko:"지민"},
+  {t:"No queríamos tratar nuestras raíces como formas fijas. Las reinterpretamos a nuestra manera.", m:"RM", s:"Korea Times, 2026", ko:"남준"},
+  {t:"Nos hemos vuelto más cercanos, pero nuestra energía juguetona sigue igual.", m:"Jin", s:"Korea Times, 2026", ko:"석진"},
+  {t:"Me convertí en quien soy porque creyeron en mí antes de que yo creyera en mí mismo.", m:"Jimin", s:"Discurso MAMA, 2020", ko:"지민"},
+  {t:"Algunas puertas solo se abren desde adentro. Tienes que decidir cruzarlas.", m:"RM", s:"Entrevista, 2022", ko:"남준"},
+  {t:"El mundo está lleno de personas diciéndote lo que no puedes hacer. Ignóralas.", m:"Suga", s:"Weverse, 2021", ko:"윤기"},
+  {t:"Incluso en tus peores días, le hiciste el día mejor a alguien solo con existir.", m:"Jin", s:"Weverse, 2021", ko:"석진"},
+  {t:"Este es solo el comienzo. Los mejores capítulos de tu historia aún están por escribirse.", m:"J-Hope", s:"Jack in the Box — carta, 2022", ko:"호석"},
+  {t:"No somos solo música. Somos una conversación que nunca termina.", m:"RM", s:"Entrevista NME, 2022", ko:"남준"},
+  {t:"Espero que encuentres tu propia Euforia.", m:"Jungkook", s:"Euphoria — nota en vivo, 2019", ko:"정국"},
+  {t:"Ámate a ti mismo — no es vanidad, es supervivencia.", m:"RM", s:"Love Yourself Tour, 2018", ko:"남준"},
+  {t:"Cada vez que subimos al escenario pienso: por eso nunca nos rendimos.", m:"Jimin", s:"Discurso MAMA, 2021", ko:"지민"}
+];
+
+var TOTAL = Q.length;
+
+function getIdx() {
+  var k = 'bts_es_v2';
+  var s = sessionStorage.getItem(k);
+  if (s !== null) return parseInt(s, 10);
+  var n = Math.floor(Math.random() * TOTAL);
+  sessionStorage.setItem(k, n);
+  return n;
+}
+
+function animWords(el, text, base) {
+  el.innerHTML = '';
+  var words = text.split(' ');
+  words.forEach(function(w, i) {
+    var sp = document.createElement('span');
+    sp.className = 'word';
+    sp.textContent = w;
+    el.appendChild(sp);
+    setTimeout(function() { sp.classList.add('on'); }, base + i * 50);
+  });
+  return base + words.length * 50 + 80;
+}
+
+function render() {
+  var idx = getIdx();
+  var q = Q[idx];
+  document.getElementById('m-badge').textContent = q.m;
+  document.getElementById('m-src').textContent = q.s;
+  document.getElementById('m-ko').textContent = q.ko;
+
+  var divLine = document.getElementById('div-line');
+  var meta = document.getElementById('meta');
+  divLine.classList.remove('grow');
+  meta.classList.remove('on');
+
+  var done = animWords(document.getElementById('q-text'), q.t, 80);
+  setTimeout(function() { divLine.classList.add('grow'); }, done);
+  setTimeout(function() { meta.classList.add('on'); }, done + 450);
+}
+
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loader').classList.add('out');
+    render();
+  }, 1400);
+});
+</script>
+</body>
+</html>
