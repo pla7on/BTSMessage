@@ -16,91 +16,143 @@ html, body {
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
+
 .screen {
   position: relative; width: 100%; height: 100dvh;
   display: flex; flex-direction: column; justify-content: flex-end;
   overflow: hidden;
 }
-.bg-video { position: absolute; inset: 0; z-index: 0; }
-.bg-video video { width: 100%; height: 100%; object-fit: cover; object-position: left center; }
+
+/* ── CANVAS BACKGROUND ── */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* bottom fade */
 .bg-fade {
   position: absolute; inset: 0; z-index: 1;
   background: linear-gradient(to bottom,
-    rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.25) 30%,
-    rgba(0,0,0,0.65) 55%, rgba(0,0,0,0.92) 75%, #000 100%);
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.1)  25%,
+    rgba(0,0,0,0.55) 55%,
+    rgba(0,0,0,0.88) 75%,
+    #000 100%);
 }
+
+/* ── BRAND ── */
 .brand {
   position: absolute; top: 28px; left: 24px; z-index: 10;
   display: flex; align-items: center; gap: 8px;
-  opacity: 0; animation: fadeDown .7s ease .2s forwards;
+  opacity: 0; animation: fadeDown .7s ease .3s forwards;
 }
 .brand-dot { width: 14px; height: 14px; border-radius: 50%; background: #fff; flex-shrink: 0; }
 .brand-name { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
-.content { position: relative; z-index: 10; padding: 0 24px 52px; display: flex; flex-direction: column; }
+
+/* ── CONTENT ── */
+.content {
+  position: relative; z-index: 10;
+  padding: 0 24px 52px;
+  display: flex; flex-direction: column;
+}
 .hero-title {
   font-size: clamp(38px, 11vw, 52px); font-weight: 700;
   letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 28px;
   opacity: 0; transform: translateY(20px);
-  animation: fadeUp .8s cubic-bezier(0.22,1,0.36,1) .35s forwards;
+  animation: fadeUp .8s cubic-bezier(0.22,1,0.36,1) .4s forwards;
 }
+
+/* ── QUOTE CARD ── */
 .quote-card {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 20px; padding: 24px 22px 22px;
   position: relative; overflow: hidden;
   opacity: 0; transform: translateY(18px);
-  animation: fadeUp .9s cubic-bezier(0.22,1,0.36,1) .55s forwards;
+  animation: fadeUp .9s cubic-bezier(0.22,1,0.36,1) .6s forwards;
 }
 .quote-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
 }
 .quote-text {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(19px, 5.5vw, 24px); font-style: italic; font-weight: 400;
-  line-height: 1.45; color: #fff; margin-bottom: 20px; min-height: 80px;
+  font-size: clamp(19px, 5.5vw, 24px); font-style: italic;
+  font-weight: 400; line-height: 1.45; color: #fff;
+  margin-bottom: 20px; min-height: 80px;
 }
 .quote-text .word {
   display: inline-block; opacity: 0; transform: translateY(8px);
   transition: opacity .4s ease, transform .4s ease; margin-right: 0.22em;
 }
 .quote-text .word.on { opacity: 1; transform: translateY(0); }
+
 .divider {
   height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 16px;
   transform: scaleX(0); transform-origin: left;
   transition: transform .9s cubic-bezier(0.22,1,0.36,1);
 }
 .divider.grow { transform: scaleX(1); }
+
 .meta {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 10px;
   opacity: 0; transform: translateY(6px);
   transition: opacity .5s ease, transform .5s ease;
 }
 .meta.on { opacity: 1; transform: translateY(0); }
+
 .member-badge {
   display: inline-block; background: #fff; color: #000;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 4px 12px; border-radius: 100px; white-space: nowrap; margin-bottom: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 4px 12px;
+  border-radius: 100px; white-space: nowrap; margin-bottom: 6px;
 }
-.source-text { font-size: 12px; color: rgba(255,255,255,0.4); font-style: italic; line-height: 1.5; }
+.source-text {
+  font-size: 12px; color: rgba(255,255,255,0.4);
+  font-style: italic; line-height: 1.5;
+}
 .meta-ko {
   font-size: 26px; color: rgba(255,255,255,0.08);
   font-family: 'Playfair Display', serif; font-style: italic;
   line-height: 1; flex-shrink: 0; padding-top: 2px;
 }
+
+/* ── LOADER ── */
 #loader {
   position: fixed; inset: 0; z-index: 200; background: #000;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px;
   transition: opacity .6s ease, visibility .6s ease;
 }
 #loader.out { opacity: 0; visibility: hidden; }
-.loader-ko { font-size: 72px; font-weight: 700; letter-spacing: -0.04em; color: rgba(255,255,255,0.9); animation: pulse 1.3s ease-in-out infinite; }
-.loader-bar { width: 160px; height: 1px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; }
-.loader-bar::after { content: ''; position: absolute; top: 0; bottom: 0; width: 50%; background: rgba(255,255,255,0.6); animation: slide 1s ease-in-out infinite; }
-.loader-hint { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.25); }
-@keyframes fadeUp  { to { opacity:1; transform:translateY(0); } }
+.loader-ko {
+  font-size: 72px; font-weight: 700;
+  letter-spacing: -0.04em; color: rgba(255,255,255,0.9);
+  animation: pulse 1.3s ease-in-out infinite;
+}
+.loader-bar {
+  width: 160px; height: 1px;
+  background: rgba(255,255,255,0.1);
+  position: relative; overflow: hidden;
+}
+.loader-bar::after {
+  content: ''; position: absolute; top: 0; bottom: 0;
+  width: 50%; background: rgba(255,255,255,0.6);
+  animation: slide 1s ease-in-out infinite;
+}
+.loader-hint {
+  font-size: 11px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: rgba(255,255,255,0.25);
+}
+
+@keyframes fadeUp   { to { opacity:1; transform:translateY(0); } }
 @keyframes fadeDown { to { opacity:1; } }
-@keyframes pulse   { 0%,100%{opacity:.5} 50%{opacity:1} }
-@keyframes slide   { 0%{left:-50%} 100%{left:150%} }
+@keyframes pulse    { 0%,100%{opacity:.5} 50%{opacity:1} }
+@keyframes slide    { 0%{left:-50%} 100%{left:150%} }
 </style>
 </head>
 <body>
@@ -112,16 +164,14 @@ html, body {
 </div>
 
 <div class="screen">
-  <div class="bg-video">
-    <video autoplay muted loop playsinline>
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4" type="video/mp4">
-    </video>
-  </div>
+  <canvas id="bg-canvas"></canvas>
   <div class="bg-fade"></div>
+
   <div class="brand">
     <div class="brand-dot"></div>
     <span class="brand-name">방탄소년단</span>
   </div>
+
   <div class="content">
     <h1 class="hero-title">Un mensaje<br>solo para ti</h1>
     <div class="quote-card">
@@ -140,9 +190,142 @@ html, body {
 </div>
 
 <script>
-/* ── FRASES: ~15 por miembro, distribuidas equitativamente ── */
+/* ══════════════════════════════════════════════
+   BACKGROUND v3
+   — grain: subtle, refreshes at ~6fps (less jitter)
+   — blobs: slow oscillating drift, wide travel
+   — colour: full spectrum cycle, one hue at a time
+   ══════════════════════════════════════════════ */
+(function() {
+  var canvas = document.getElementById('bg-canvas');
+  var ctx    = canvas.getContext('2d');
+  var W, H;
+
+  /* ── grain layer ── */
+  var grain = document.createElement('canvas');
+  grain.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;';
+  canvas.parentNode.insertBefore(grain, canvas.nextSibling);
+  var gctx  = grain.getContext('2d');
+  var lastG = -1;
+
+  function resize() {
+    W = canvas.width = grain.width  = window.innerWidth;
+    H = canvas.height = grain.height = window.innerHeight;
+  }
+
+  function lerp(a,b,x){ return a+(b-a)*x; }
+  function ease(x){ return x*x*(3-2*x); }
+
+  /* ── grain: ~6fps, low opacity — present but calm ── */
+  function drawGrain(ts) {
+    if (ts - lastG < 160) return; /* 160ms ≈ 6fps */
+    lastG = ts;
+    var id = gctx.createImageData(W, H);
+    var d  = id.data;
+    for (var i = 0; i < d.length; i += 4) {
+      var v  = (Math.random()*255)|0;
+      d[i]   = v; d[i+1] = v; d[i+2] = v;
+      d[i+3] = 22; /* was 42 — now much calmer */
+    }
+    gctx.putImageData(id, 0, 0);
+  }
+
+  /* ── colour palette: full spectrum, slow ──
+     Each stop is [hue, sat, lightness-of-highlight].
+     Cycle time: STEP seconds per transition.          */
+  var PAL = [
+    [218, 92, 44],  /* cobalt blue   — start */
+    [260, 85, 38],  /* indigo-violet */
+    [290, 80, 36],  /* purple        */
+    [330, 82, 38],  /* magenta-rose  */
+    [350, 80, 36],  /* crimson       */
+    [200, 88, 40],  /* cyan-blue     */
+    [165, 75, 32],  /* teal          */
+    [218, 92, 44],  /* back to blue  */
+  ];
+  var STEP = 8.0; /* seconds per colour step */
+
+  /* ── blobs ──
+     5 blobs that together form the layered gradient of the reference.
+     ox/oy = oscillation radius (0-1 of screen).
+     spx/spy = oscillation speed (rad/sec). ph = phase offset.      */
+  var blobs = [
+    /* highlight — near-white, upper area, drifts gently */
+    { nx:0.30, ny:0.03, ox:0.10, oy:0.06, spx:0.22, spy:0.16, ph:0.0,
+      hs:40,  hl:88, a:0.88, r:0.55 },
+    /* vivid core — most saturated, center-left, wider swing */
+    { nx:0.20, ny:0.32, ox:0.14, oy:0.12, spx:0.13, spy:0.10, ph:1.4,
+      hs:95,  hl:44, a:0.94, r:0.60 },
+    /* mid blue — slightly below, swings right too */
+    { nx:0.30, ny:0.55, ox:0.12, oy:0.10, spx:0.17, spy:0.14, ph:2.7,
+      hs:88,  hl:32, a:0.85, r:0.52 },
+    /* deep navy — lower left */
+    { nx:0.18, ny:0.76, ox:0.09, oy:0.07, spx:0.10, spy:0.12, ph:0.9,
+      hs:78,  hl:18, a:0.80, r:0.54 },
+    /* almost-black base — bottom, barely moves */
+    { nx:0.45, ny:0.92, ox:0.06, oy:0.04, spx:0.07, spy:0.09, ph:3.5,
+      hs:60,  hl:8,  a:0.72, r:0.58 },
+  ];
+
+  function draw(ts) {
+    var t = ts * 0.001; /* seconds */
+
+    /* ── global hue from palette ── */
+    var cyc = (t / STEP) % (PAL.length - 1);
+    var seg = Math.floor(cyc);
+    var fr  = ease(cyc - seg);
+    var p0  = PAL[seg], p1 = PAL[seg + 1];
+    var gH  = lerp(p0[0], p1[0], fr);
+    var gS  = lerp(p0[1], p1[1], fr);
+    var gL  = lerp(p0[2], p1[2], fr);
+
+    /* black base */
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    blobs.forEach(function(b, i) {
+      /* position oscillates smoothly */
+      var bx = (b.nx + Math.sin(t * b.spx + b.ph        ) * b.ox) * W;
+      var by = (b.ny + Math.cos(t * b.spy + b.ph + 0.6  ) * b.oy) * H;
+
+      /* hue tracks global palette; each blob adds a tiny per-blob offset */
+      var bh = gH + (i - 2) * 4 + Math.sin(t * 0.03 + i) * 3;
+      /* sat/light: blend blob's own character with global */
+      var bs = Math.min(100, b.hs * 0.5 + gS * 0.5);
+      var bl = Math.min(95,  b.hl * 0.65 + gL * 0.35);
+      var R  = b.r * Math.max(W, H);
+
+      var g = ctx.createRadialGradient(bx, by, 0, bx, by, R);
+      g.addColorStop(0,    'hsla('+bh+','+bs+'%,'+bl       +'%,'+b.a+')');
+      g.addColorStop(0.28, 'hsla('+bh+','+bs+'%,'+(bl- 7  )+'%,'+(b.a*0.70)+')');
+      g.addColorStop(0.58, 'hsla('+(bh+5)+','+(bs-10)+'%,'+(bl-17)+'%,'+(b.a*0.28)+')');
+      g.addColorStop(1,    'hsla('+(bh+8)+',35%,4%,0)');
+
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(bx, by, R, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.globalCompositeOperation = 'source-over';
+    drawGrain(ts);
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+
+
+/* ══════════════════════════════════════════════
+   QUOTES DATA — 15 per member, balanced
+   ══════════════════════════════════════════════ */
 var Q = [
-  /* RM — 15 */
+  /* RM */
   {t:"Quizás cometí un error ayer, pero el yo de ayer sigo siendo yo. Soy quien soy hoy, con todos mis defectos.", m:"RM", s:"Sea — canción, 2017", ko:"남준"},
   {t:"El amanecer justo antes de que salga el sol es el momento más oscuro.", m:"RM", s:"Tomorrow — canción, 2014", ko:"남준"},
   {t:"Aunque no seas perfecto, eres una edición limitada.", m:"RM", s:"Entrevista, 2015", ko:"남준"},
@@ -158,8 +341,7 @@ var Q = [
   {t:"La tristeza que sientes ahora es la prueba de que todavía estás luchando.", m:"RM", s:"Indigo — notas, 2022", ko:"남준"},
   {t:"No conquistamos el mundo. Solo lo amamos tan fuerte que nos escuchó.", m:"RM", s:"Entrevista Variety, 2022", ko:"남준"},
   {t:"Lo más importante es simplemente que estamos aquí, juntos otra vez.", m:"RM", s:"GQ — entrevista grupal, 2026", ko:"남준"},
-
-  /* SUGA — 15 */
+  /* SUGA */
   {t:"La vida es dura y no siempre sale bien, pero debemos ser valientes y seguir adelante.", m:"Suga", s:"Seesaw — canción, 2018", ko:"윤기"},
   {t:"Las emociones son distintas en cada situación y momento. Agonizar en cada instante — eso es la vida.", m:"Suga", s:"Entrevista NME, 2019", ko:"윤기"},
   {t:"Creo que BTS brilla gracias a sus fans.", m:"Suga", s:"Weverse Magazine, 2021", ko:"윤기"},
@@ -175,8 +357,7 @@ var Q = [
   {t:"Estuve perdido mucho tiempo. La música me dio un mapa.", m:"Suga", s:"D-2 — notas, 2020", ko:"윤기"},
   {t:"El mundo está lleno de personas diciéndote lo que no puedes hacer. Ignóralas.", m:"Suga", s:"Weverse, 2021", ko:"윤기"},
   {t:"Hemos crecido, pero nuestra energía sigue siendo la misma.", m:"Suga", s:"Entrevista previa a ARIRANG, 2025", ko:"윤기"},
-
-  /* JIN — 15 */
+  /* JIN */
   {t:"Tu presencia puede dar felicidad. Espero que lo recuerdes.", m:"Jin", s:"Fansign, 2017", ko:"석진"},
   {t:"No te preocupes. Incluso las flores necesitan lluvia para florecer.", m:"Jin", s:"Weverse post, 2022", ko:"석진"},
   {t:"No sé todo, pero sé una cosa: tú importas.", m:"Jin", s:"Weverse post, 2022", ko:"석진"},
@@ -192,8 +373,7 @@ var Q = [
   {t:"Vive con el corazón joven y siempre tendrás energía para todo.", m:"Jin", s:"Fansign, 2018", ko:"석진"},
   {t:"Somos siete. Somos uno. Eso nunca cambiará.", m:"Jin", s:"Permission to Dance on Stage, 2022", ko:"석진"},
   {t:"Cada actuación fue para ti. Siempre.", m:"Jin", s:"Discurso fin de gira, 2022", ko:"석진"},
-
-  /* J-HOPE — 15 */
+  /* J-HOPE */
   {t:"Incluso cuando esta lluvia se detenga y las nubes se vayan, yo aquí sigo, igual que siempre.", m:"J-Hope", s:"Rain — canción, 2014", ko:"호석"},
   {t:"Una sonrisa cálida es el lenguaje universal de la bondad.", m:"J-Hope", s:"Weverse post, 2020", ko:"호석"},
   {t:"La música me ayudó a entender a nuestra generación joven y a sentir empatía por ella.", m:"J-Hope", s:"Entrevista Esquire Korea, 2019", ko:"호석"},
@@ -209,8 +389,7 @@ var Q = [
   {t:"No nos rendimos. Nunca nos rendimos. Esa es nuestra promesa.", m:"J-Hope", s:"Entrevista, 2021", ko:"호석"},
   {t:"Ser feliz no significa que todo esté bien. Significa que elegiste estarlo.", m:"J-Hope", s:"Weverse, 2021", ko:"호석"},
   {t:"No dejamos de bailar porque nos hagamos viejos. Nos hacemos viejos cuando dejamos de bailar.", m:"J-Hope", s:"Hope on the Street, 2024", ko:"호석"},
-
-  /* JIMIN — 15 */
+  /* JIMIN */
   {t:"Cuando tu corazón se conmueve, se convierte en algo mejor y más positivo.", m:"Jimin", s:"Entrevista Vogue, 2019", ko:"지민"},
   {t:"Sabe que el dolor pasará. Y cuando lo haga, serás más fuerte.", m:"Jimin", s:"Weverse, 2021", ko:"지민"},
   {t:"Aunque me duela un poco, está bien.", m:"Jimin", s:"Serendipity — canción, 2018", ko:"지민"},
@@ -226,8 +405,7 @@ var Q = [
   {t:"Cada vez que subimos al escenario pienso: por eso nunca nos rendimos.", m:"Jimin", s:"Discurso MAMA, 2021", ko:"지민"},
   {t:"Cada paso que damos está dedicado a ti.", m:"Jimin", s:"Discurso BBMA, 2021", ko:"지민"},
   {t:"El amor que recibimos del ARMY siempre nos lleva más lejos de lo que creemos posible.", m:"Jimin", s:"Weverse, 2022", ko:"지민"},
-
-  /* V — 15 */
+  /* V */
   {t:"No te quedes atrapado en el sueño de otro. Vive el tuyo.", m:"V", s:"Entrevista MTV, 2018", ko:"태형"},
   {t:"Quítate la máscara. Solo tienes que ser tú.", m:"V", s:"Zero O'Clock — canción, 2020", ko:"태형"},
   {t:"Cuando las cosas se pongan difíciles, para un momento y mira cuánto has recorrido.", m:"V", s:"Fansign, 2019", ko:"태형"},
@@ -240,11 +418,10 @@ var Q = [
   {t:"Nuestra pasión por el escenario no ha cambiado. Eso nunca cambia.", m:"V", s:"Korea Times, 2026", ko:"태형"},
   {t:"BTS no es solo un grupo. Es un sentimiento. Es la prueba de que el amor funciona.", m:"V", s:"Weverse, 2023", ko:"태형"},
   {t:"Hay cosas que solo se pueden expresar con música. Las palabras solas no son suficientes.", m:"V", s:"In the SOOP, 2021", ko:"태형"},
-  {t:"El arte me enseñó que ser diferente no es un defecto. Es exactamente el punto.", m:"V", s:"Entrevista GQ, 2022", ko:"남준"},
   {t:"Hice crecer una flor que no puede florecer en un sueño que no puede hacerse realidad.", m:"V", s:"Fake Love — canción, 2018", ko:"태형"},
   {t:"Me gusto más a mí mismo cuando estoy con los miembros.", m:"V", s:"Korea Times, 2026", ko:"태형"},
-
-  /* JUNGKOOK — 15 */
+  {t:"El arte me enseñó que ser diferente no es un defecto. Es exactamente el punto.", m:"V", s:"Entrevista GQ, 2022", ko:"태형"},
+  /* JUNGKOOK */
   {t:"Puede que no seas perfecto, pero estás lleno de belleza.", m:"Jungkook", s:"Begin — canción, 2016", ko:"정국"},
   {t:"Vivir sin pasión es como estar muerto.", m:"Jungkook", s:"Weverse, 2021", ko:"정국"},
   {t:"Todos nuestros sueños pueden hacerse realidad si tenemos el coraje de perseguirlos.", m:"Jungkook", s:"Fansign, 2018", ko:"정국"},
@@ -260,8 +437,7 @@ var Q = [
   {t:"Cuando era joven pensé que todo llegaría solo. Ahora sé que hay que ir a buscarlo.", m:"Jungkook", s:"Entrevista, 2018", ko:"정국"},
   {t:"No sé qué sería de mí sin la música. Probablemente estaría perdido.", m:"Jungkook", s:"Weverse, 2022", ko:"정국"},
   {t:"Dar todo en el escenario no es suficiente si no lo doy todo también fuera de él.", m:"Jungkook", s:"Documental Golden, 2023", ko:"정국"},
-
-  /* BTS GRUPO — 10 */
+  /* BTS grupo */
   {t:"Si no puedes volar, corre. Si no puedes correr, camina. Si no puedes caminar, arrastra. Pero sigue avanzando.", m:"BTS", s:"Not Today — canción, 2017", ko:"방탄"},
   {t:"Para siempre somos jóvenes, bajo la lluvia de pétalos de flores.", m:"BTS", s:"Young Forever — canción, 2016", ko:"방탄"},
   {t:"Día de primavera, te extraño. Quiero ir a donde estás.", m:"BTS", s:"Spring Day — canción, 2017", ko:"방탄"},
@@ -274,13 +450,13 @@ var Q = [
   {t:"No somos solo música. Somos una conversación que nunca termina.", m:"BTS", s:"Entrevista NME, 2022", ko:"방탄"}
 ];
 
-/* ── SISTEMA DE ROTACIÓN JUSTA ──
-   Crea un orden aleatorio que garantiza ver todos los miembros
-   antes de repetir cualquiera. Persiste entre recargas. */
+/* ══════════════════════════════════════════════
+   ROTATION — nueva frase en cada carga de página
+   Sin sessionStorage: siempre avanza
+   ══════════════════════════════════════════════ */
 function buildShuffled() {
   var idx = [];
   for (var i = 0; i < Q.length; i++) idx.push(i);
-  /* Fisher-Yates */
   for (var j = idx.length - 1; j > 0; j--) {
     var k = Math.floor(Math.random() * (j + 1));
     var tmp = idx[j]; idx[j] = idx[k]; idx[k] = tmp;
@@ -289,39 +465,30 @@ function buildShuffled() {
 }
 
 function getNext() {
-  var KEY_ORDER  = 'bts_order_v3';
-  var KEY_POS    = 'bts_pos_v3';
-
+  var KEY_ORDER = 'bts_ord_v4';
+  var KEY_POS   = 'bts_pos_v4';
   var order, pos;
 
-  try {
-    var raw = localStorage.getItem(KEY_ORDER);
-    order = raw ? JSON.parse(raw) : null;
-  } catch(e) { order = null; }
-
+  try { order = JSON.parse(localStorage.getItem(KEY_ORDER)); } catch(e) { order = null; }
   pos = parseInt(localStorage.getItem(KEY_POS) || '0', 10);
-  if (isNaN(pos)) pos = 0;
+  if (isNaN(pos) || pos < 0) pos = 0;
 
-  /* Si no hay orden guardado O ya terminamos el ciclo, crea uno nuevo */
-  if (!order || !order.length || pos >= order.length) {
+  if (!order || !Array.isArray(order) || pos >= order.length) {
     order = buildShuffled();
     pos   = 0;
-    try {
-      localStorage.setItem(KEY_ORDER, JSON.stringify(order));
-      localStorage.setItem(KEY_POS, '0');
-    } catch(e) {}
   }
 
-  var quoteIdx = order[pos];
-
-  /* Avanza para la próxima visita */
+  var qi = order[pos];
   try {
+    localStorage.setItem(KEY_ORDER, JSON.stringify(order));
     localStorage.setItem(KEY_POS, String(pos + 1));
   } catch(e) {}
-
-  return quoteIdx;
+  return qi;
 }
 
+/* ══════════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════════ */
 function animWords(el, text, base) {
   el.innerHTML = '';
   var words = text.split(' ');
@@ -330,33 +497,31 @@ function animWords(el, text, base) {
     sp.className = 'word';
     sp.textContent = w;
     el.appendChild(sp);
-    setTimeout(function() { sp.classList.add('on'); }, base + i * 50);
+    setTimeout(function() { sp.classList.add('on'); }, base + i * 48);
   });
-  return base + words.length * 50 + 80;
+  return base + words.length * 48 + 80;
 }
 
 function render() {
-  var idx = getNext();
-  var q = Q[idx];
-  document.getElementById('m-badge').textContent = q.m;
-  document.getElementById('m-src').textContent = q.s;
-  document.getElementById('m-ko').textContent = q.ko;
-
-  var divLine = document.getElementById('div-line');
-  var meta    = document.getElementById('meta');
-  divLine.classList.remove('grow');
+  var idx  = getNext();
+  var q    = Q[idx];
+  var divL = document.getElementById('div-line');
+  var meta = document.getElementById('meta');
+  divL.classList.remove('grow');
   meta.classList.remove('on');
-
+  document.getElementById('m-badge').textContent = q.m;
+  document.getElementById('m-src').textContent   = q.s;
+  document.getElementById('m-ko').textContent    = q.ko;
   var done = animWords(document.getElementById('q-text'), q.t, 80);
-  setTimeout(function() { divLine.classList.add('grow'); }, done);
-  setTimeout(function() { meta.classList.add('on'); }, done + 450);
+  setTimeout(function() { divL.classList.add('grow'); }, done);
+  setTimeout(function() { meta.classList.add('on'); },  done + 450);
 }
 
 window.addEventListener('load', function() {
   setTimeout(function() {
     document.getElementById('loader').classList.add('out');
     render();
-  }, 1400);
+  }, 1300);
 });
 </script>
 </body>
